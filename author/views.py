@@ -47,12 +47,8 @@ def register():
 def success():
 	return "Author registered!"
 
-@app.route('/login_success')
-@login_required
-def login_success():
-    return "Author logged in!"
-
 @app.route('/logout')
 def logout():
 	session.pop('username')
+	session.pop('is_author')
 	return redirect(url_for('index'))

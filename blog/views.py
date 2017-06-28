@@ -8,20 +8,24 @@ from author.decorators import login_required, author_required
 import bcrypt
 from slugify import slugify
 
+POSTS_PER_PAGE = 5
+
 @app.route('/')
 @app.route('/index')
-def index():
-	blogs = Blog.query.count()
-	if blogs == 0:
+@app.route('/index/<int:page>')
+def index(page=1):
+	blog = Blog.query.first()
+	if not blog:
 		return redirect(url_for('setup'))
-	return "Hello World!"
+	posts = Post.query.order_by(Post.publish_date.desc()).paginate(page, POSTS_PER_PAGE, False)
+	return render_template('blog/index.html', blog=blog, posts=posts)
 
 @app.route('/admin')
 @author_required
-def admin():
+def admin(page=1):
 	if session.get('is_author'):
-		print(session.get('is_author'))
-		return render_template('blog/admin.html')
+		posts = Post.query.order_by(Post.publish_date.desc()).paginate(page, POSTS_PER_PAGE, False)
+		return render_template('blog/admin.html', posts=posts)
 	else:
 		abort(403)
 
